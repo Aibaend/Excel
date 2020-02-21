@@ -128,6 +128,7 @@ func KPBillReport() {
 		f.SetCellValue(sheet, "X"+strconv.Itoa(y+i), products[i].Measure)
 		f.SetCellValue(sheet, "AA"+strconv.Itoa(y+i), products[i].Price)
 		f.SetCellValue(sheet, "AG"+strconv.Itoa(y+i), products[i].TotalPrice)
+		f.InsertRow(sheet, y+i)
 	}
 
 	endRow := 39

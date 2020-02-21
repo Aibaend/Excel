@@ -46,6 +46,7 @@ func BZReport() {
 		f.SetCellValue(sheet, "J"+strconv.Itoa(starter+i), "Count")        //Количество
 		f.SetCellValue(sheet, "K"+strconv.Itoa(starter+i), "Price")        // Цена
 		f.SetCellValue(sheet, "L"+strconv.Itoa(starter+i), "SUM")          //Сумма
+		f.InsertRow(sheet, starter+i)
 	}
 
 	f.SaveAs("docs/resultBZ.xlsx")

@@ -59,6 +59,7 @@ func KPReport() {
 		f.SetCellValue(sheet, "I"+strconv.Itoa(starter+i), product.Count)
 		f.SetCellValue(sheet, "J"+strconv.Itoa(starter+i), product.Price*product.Count)
 		sum = sum + product.Price*product.Count
+		f.InsertRow(sheet, starter+i)
 	}
 
 	f.SetCellValue(sheet, "J26", sum)
