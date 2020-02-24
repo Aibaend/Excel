@@ -19,7 +19,7 @@ type Project struct {
 func KPReport() {
 	f, err := excelize.OpenFile("docs/templateKP.xlsx")
 	if err != nil {
-		println(err.Error())
+		println(err)
 		return
 	}
 	sheet = "ЛДСП"
@@ -41,13 +41,17 @@ func KPReport() {
 
 	starter := 15
 	var sum int
+	for j := 0; j < len(products)-1; j++ {
+		f.DuplicateRow(sheet, starter+j)
+	}
 	for i := range products {
 
 		f.SetCellValue(sheet, "A"+strconv.Itoa(starter+i), i+1)
 		f.SetCellValue(sheet, "B"+strconv.Itoa(starter+i), product.Name+" "+strconv.Itoa(product.Volume.Width)+"X"+
 			strconv.Itoa(product.Volume.Height)+"X"+strconv.Itoa(product.Volume.Depth))
 		//image paste
-		err = f.AddPicture(sheet, "C"+strconv.Itoa(starter+i), "images/table2.png", `{"x_scale": 0.5, "y_scale": 0.5}`)
+
+		err = f.AddPicture(sheet, "C"+strconv.Itoa(starter+i), "images/table2.png", `{"x_scale": 0.5, "y_scale": 0.45}`)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -59,12 +63,13 @@ func KPReport() {
 		f.SetCellValue(sheet, "I"+strconv.Itoa(starter+i), product.Count)
 		f.SetCellValue(sheet, "J"+strconv.Itoa(starter+i), product.Price*product.Count)
 		sum = sum + product.Price*product.Count
-		f.InsertRow(sheet, starter+i)
+
 	}
 
-	f.SetCellValue(sheet, "J26", sum)
-	f.SetCellValue(sheet, "J27", "Total price of delivery")
-	f.SetCellValue(sheet, "J28", sum) ///sum+ dostavka
+	f.SetCellValue(sheet, "J"+strconv.Itoa(16+len(products)), sum)
+	fmt.Print(len(products))
+	f.SetCellValue(sheet, "J"+strconv.Itoa(17+len(products)), 5000)
+	f.SetCellValue(sheet, "J"+strconv.Itoa(18+len(products)), sum+5000) ///sum+ dostavka
 
 	f.SaveAs("docs/resultKP.xlsx")
 

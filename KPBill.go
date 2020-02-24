@@ -1,10 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
-	"github.com/tealeg/xlsx"
 	"strconv"
-	"strings"
 )
 
 var sheet = "Лист1"
@@ -70,72 +69,55 @@ type Product struct {
 }
 
 func KPBillReport() {
-	excelFileName := "docs/template2.xlsx"
-	xlFile, err := xlsx.OpenFile(excelFileName)
+	f, err := excelize.OpenFile("docs/templateKPBill.xlsx")
 	if err != nil {
+		println(err)
 		return
 	}
-	client := &Company{"MUIT", "This is BIN", "Almaty", "THIS is IIK", "CASPKZ",
-		"This is BIK", "This is KBE", "microdistrict Mamyr", "9707074010"}
-	owner := &Company{"KIT SYSTEMS", "This is BIN", "Almaty", "THIS is IIK",
-		"CASPKZ", "This is BIK", "This is KBE", "microdistrict Mamyr", "9707074010"}
-	product := &Product{Name: "HDMI", Count: 1, Measure: "штук", Price: 1000, TotalPrice: 1000}
+	sheet = "Лист1"
+
+	f.SetCellValue(sheet, "B11", "KIT SYSTEMS")   //Бенефициар
+	f.SetCellValue(sheet, "B12", "BIN: 32123213") //BIN
+	f.SetCellValue(sheet, "B14", "CASPKZ")        //Банк бенефициара
+	f.SetCellValue(sheet, "V11", "IIK")           //IIK
+	f.SetCellValue(sheet, "V14", "BIK")
+	f.SetCellValue(sheet, "AF11", "KBE")
+	f.SetCellValue(sheet, "AD14", "CODE 13XXX")
+	f.SetCellValue(sheet, "B17", "Счет на оплату N 12314 от 12.01.2019")
+	f.SetCellValue(sheet, "F21", "970708301791, KIT SYSTEMS, Тенгиз Товерс 30/1")
+	f.SetCellValue(sheet, "F23", "970708301791, KIT SYSTEMS,Алматы, Тенгиз Товерс 30/1")
+	f.SetCellValue(sheet, "F25", "5634221")
+
 	products := []*Product{}
-	products = append(products, product)
-	products = append(products, product)
 
-	agreement := AgreementInfo{Date: "1 сентября 2020", Payment: 1000, Executor: "Andrey", OperationNumber: "XXX13", Agreement: "XXX123", PaymentWord: "тысячи теньге",
-		OwnerCompany: owner, ClientCompany: client}
-	agreement.Products = append(agreement.Products, product)
+	product_one := &Product{Name: " Chair", Count: 2, Measure: "штук", Price: 1000}
+	product_two := &Product{Name: " Chair", Count: 2, Measure: "штук", Price: 1000}
+	products = append(products, product_one, product_two)
+	starter := 28
+	for j := 0; j < len(products)-1; j++ {
+		fmt.Print(starter + j)
+		f.DuplicateRow(sheet, starter)
+		f.MergeCell(sheet, "B29", "C29")
+		f.MergeCell(sheet, "D29", "S29")
+		f.MergeCell(sheet, "T29", "W29")
+		f.MergeCell(sheet, "X29", "Z29")
+		f.MergeCell(sheet, "AA29", "AF29")
+		f.MergeCell(sheet, "AG29", "AL29")
 
-	for _, sheet := range xlFile.Sheets {
-		for _, row := range sheet.Rows {
-			for _, cell := range row.Cells {
-				if strings.Contains(cell.String(), company) {
-					result := strings.Replace(cell.String(), company, agreement.ClientCompany.Name, 1)
-					cell.Value = result
-				}
-				if strings.Contains(cell.String(), bin) {
-					result := strings.Replace(cell.String(), bin, agreement.ClientCompany.BIN, 1)
-					cell.Value = result
-				}
-				if strings.Contains(cell.String(), iik) {
-					result := strings.Replace(cell.String(), iik, agreement.ClientCompany.IIK, 1)
-					cell.Value = result
-				}
-				if strings.Contains(cell.String(), kbe) {
-					result := strings.Replace(cell.String(), kbe, agreement.ClientCompany.KBE, 1)
-					cell.Value = result
-				}
-
-			}
-		}
 	}
-
-	xlFile.Save("docs/result.xlsx")
-	//B27
-	f, err := excelize.OpenFile("docs/result.xlsx")
-	if err != nil {
-		println(err.Error())
-		return
-	}
-
-	y := 27
+	var sum int
 	for i := range products {
-		f.SetCellValue(sheet, "B"+strconv.Itoa(y+i), i+1)
-		f.SetCellValue(sheet, "D"+strconv.Itoa(y+i), products[i].Name)
-		f.SetCellValue(sheet, "T"+strconv.Itoa(y+i), products[i].Count)
-		f.SetCellValue(sheet, "X"+strconv.Itoa(y+i), products[i].Measure)
-		f.SetCellValue(sheet, "AA"+strconv.Itoa(y+i), products[i].Price)
-		f.SetCellValue(sheet, "AG"+strconv.Itoa(y+i), products[i].TotalPrice)
-		f.InsertRow(sheet, y+i)
+		f.SetCellValue(sheet, "B"+strconv.Itoa(starter+i), i+1)
+		f.SetCellValue(sheet, "D"+strconv.Itoa(starter+i), products[i].Name)
+		f.SetCellValue(sheet, "T"+strconv.Itoa(starter+i), products[i].Count)
+		f.SetCellValue(sheet, "X"+strconv.Itoa(starter+i), products[i].Measure)
+		f.SetCellValue(sheet, "AA"+strconv.Itoa(starter+i), products[i].Price)
+		f.SetCellValue(sheet, "AG"+strconv.Itoa(starter+i), products[i].Price*products[i].Count)
+		sum = sum + products[i].Price*products[i].Count
 	}
-
-	endRow := 39
-	fixedRow := 13
-	for i := 0; i < fixedRow-len(products); i++ {
-		f.RemoveRow(sheet, endRow-i)
-	}
-
-	f.Save()
+	f.SetCellValue(sheet, "AG"+strconv.Itoa(29+len(products)), sum)
+	f.SetCellValue(sheet, "B"+strconv.Itoa(31+len(products)), "Всего наименований "+strconv.Itoa(len(products))+" на сумму "+strconv.Itoa(sum))
+	f.SetCellValue(sheet, "B"+strconv.Itoa(32+len(products)), "Всего к оплате: Столько-то тысяч тенге")
+	f.SetCellValue(sheet, "G"+strconv.Itoa(36+len(products)), "Done by Aibaend")
+	f.SaveAs("docs/resultKPBill.xlsx")
 }
