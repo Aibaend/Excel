@@ -1,71 +1,36 @@
 package main
 
 import (
-	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	"strconv"
 )
 
 var sheet = "Лист1"
-var company = "{my_company_name}"
-var bin = "{BIN}"
-var iik = "{iik}"
-var kbe = "{kbe}"
-var bank = "{BANK}"
-var bik = "{BIK}"
-var payment_code = "{code_of_payment}"
-var operation_number = "{operation_number}"
-var address = "{operation_number}"
-var city = "{city}"
-var agreement = "{agreement}"
-var payment = "{payment}"
-var paymentword = "{payment_word}"
-var executor = "{executor}"
 
-type AgreementInfo struct {
-	OwnerCompany    *Company   `json:"owner_company"`
-	ClientCompany   *Company   `json:"client_company"`
-	Date            string     `json:"date"`
-	OperationNumber string     `json:"operation_number"`
-	Agreement       string     `json:"agreement"`
-	Payment         int        `json:"payment"`
-	PaymentWord     string     `json:"payment_word"`
-	Executor        string     `json:"executor"`
-	Products        []*Product `json:"products"`
+type KPBill struct {
+	Beneficiary     *Company `json:"beneficiary"`
+	PaymentCode     string   `json:"payment_code"`
+	Date            string   `json:"date"`
+	AgreementNumber string   `json:"agreement_number"`
 }
 
 type Company struct {
-	Name    string
+	Name    string `json:"name"`
 	BIN     string `json:"bin"`
-	City    string `json:"city"`
 	IIK     string `json:"iik"`
+	KBE     string `json:"kbe"`
 	Bank    string `json:"bank"`
 	BIK     string `json:"bik"`
-	KBE     string `json:"kbe"`
 	Address string `json:"address"`
-	IIN     string `json:"iin,omitempty"`
+	City    string `json:"city"`
 }
-
-type Image struct {
-	ID   uint   `json:"id"`
-	Link string `json:"link"`
-}
-type Volume struct {
-	Height  int    `json:"height"`
-	Width   int    `json:"width"`
-	Depth   int    `json:"depth"`
-	Measure string `json:"measure"`
-}
-
 type Product struct {
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Image       *Image  `json:"image"`
-	Count       int     `json:"count"`
-	Measure     string  `json:"measure"`
-	Price       int     `json:"price"`
-	TotalPrice  int     `json:"total_price,omitempty"`
-	Volume      *Volume `json:"volume,omitempty"`
+	Name       string `json:"name"`
+	Count      int    `json:"count"`
+	Measure    string `json:"measure"`
+	Price      int    `json:"price"`
+	TotalPrice int    `json:"total_price"`
+	WordPrice  string `json:"word_price"`
 }
 
 func KPBillReport() {
@@ -95,7 +60,6 @@ func KPBillReport() {
 	products = append(products, product_one, product_two)
 	starter := 28
 	for j := 0; j < len(products)-1; j++ {
-		fmt.Print(starter + j)
 		f.DuplicateRow(sheet, starter)
 		f.MergeCell(sheet, "B29", "C29")
 		f.MergeCell(sheet, "D29", "S29")
