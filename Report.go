@@ -6,16 +6,17 @@ import (
 	xlst "github.com/ivahaev/go-xlsx-templater"
 )
 
-func GenerateReport(context map[string]interface{}, template string) error {
+func GenerateReport(context map[string]interface{}, template string) (string, error) {
 	doc := xlst.New()
 	err := doc.ReadTemplate("docs/" + template)
 	if err != nil {
-		return err
+		return "File error", err
 	}
 	doc.Render(context)
-	doc.Save("docs/reportTEST.xlsx")
+	result := "docs/reportTEST.xlsx"
+	doc.Save(result)
 
-	return err
+	return result, err
 }
 
 func ReportKP() {
